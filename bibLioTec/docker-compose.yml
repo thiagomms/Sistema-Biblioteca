@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./backend
+    container_name: symfony_app
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "pgsql://symfony:symfony@db:5432/symfony"
+      DATABASE_SERVER_VERSION: "15.0"
+    command: php -S 0.0.0.0:8000 -t public
+
+  db:
+    image: postgres:15
+    container_name: symfony_db
+    environment:
+      POSTGRES_DB: symfony
+      POSTGRES_USER: symfony
+      POSTGRES_PASSWORD: symfony
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+volumes:
+  pgdata: 
